@@ -1,0 +1,12 @@
+name: covidmetrics
+title: covidmetrics
+username:
+account: martin-mccoy
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2062181
+bundleId: 2972684
+url: https://martin-mccoy.shinyapps.io/covidmetrics/
+when: 1586119498.2288
+asMultiple: FALSE
+asStatic: FALSE
