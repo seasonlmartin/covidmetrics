@@ -5,8 +5,8 @@ account: martin-mccoy
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2062181
-bundleId: 2972684
+bundleId: 2973546
 url: https://martin-mccoy.shinyapps.io/covidmetrics/
-when: 1586119498.2288
+when: 1586140518.73404
 asMultiple: FALSE
 asStatic: FALSE
