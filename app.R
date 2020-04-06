@@ -202,7 +202,7 @@ ui <- navbarPage(
     title = strong("State Dashboard"),
     fluidRow(
       box(width = 12,
-          "This dashboard is intended to provide a set of potentially useful indicators related to the difference between “confirmed case” figures for COVID-19 in the United States and the actual number of infections. We examine four metrics that provide warning signs that actual infection rates substantially exceed the number of confirmed cases. Because each metric evaluates a different aspect of the spread of the disease, we conclude that states with more of these warning signs are likely to have a substantially wider gap between confirmed cases and actual infections than states with fewer.")),
+          "This dashboard is intended to provide a set of potentially useful indicators related to the difference between “confirmed case” figures for COVID-19 in the United States and the actual number of infections. We examine four metrics that provide warning signs that actual infection rates substantially exceed the number of confirmed cases. Because each metric evaluates a different aspect of the spread of COVID-19, we conclude that states with more of these warning signs are likely to have a substantially wider gap between confirmed cases and actual infections than states with fewer.")),
     fluidRow(
       box(width = 3, height = 100,
           tags$style(".selectize-dropdown {background-color:#cdcdcd;}"),
