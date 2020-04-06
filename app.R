@@ -123,20 +123,9 @@ testing_state <- merge(testing_us, population_state, by = "fips")%>%
 #County Level Data Wrangling
 #---------------------------------
 
-nyt_county_formated <- nyt_county%>%
+nyt_county <- nyt_county%>%
   mutate(state = as.character(state))%>%
   mutate(county = as.character(county))
-
-ustotal_county <- nyt_state%>%
-  group_by(date)%>%
-  summarize(
-    state = as.character("United States"),
-    fips = 00,
-    cases = sum(cases),
-    deaths = sum(deaths))%>%
-  mutate(county = "United States")
-
-nyt_county <- bind_rows(nyt_county_formated, ustotal_county)
 
 population_county <- population_county_all %>%
   filter(county != "000")%>%
@@ -144,14 +133,6 @@ population_county <- population_county_all %>%
   unite(fips, c(state, county), sep = "")%>%
   mutate(fips = as.numeric(fips))%>%
   rename(pop = popestimate2019)
-
-population_county_to_join <- population_state%>%
-  filter(name == "United States")%>%
-  mutate(ctyname = "United States")%>%
-  rename(fips = fips)%>%
-  select(fips = fips, stname = name, ctyname = ctyname, pop = pop)
-
-population_county <- bind_rows(population_county, population_county_to_join)
 
 covid_county <- merge(nyt_county, population_county, by = "fips")%>%
   select(date = date, fips = fips, name = stname, county = county, cases = cases, deaths = deaths, pop = pop)
@@ -1067,7 +1048,7 @@ server <- function(input, output) {
     selectInput(inputId = "state", 
                 label = "Select a State:", 
                 choices = unique(covid_county$name),
-                selected = "United States") 
+                selected = "Alabama") 
   })
   
   output$county_selector = renderUI({
