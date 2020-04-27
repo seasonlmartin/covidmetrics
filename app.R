@@ -124,7 +124,8 @@ testing_us <- bind_rows(covidtesting_us, covid_testing_select)
 testing_state <- merge(testing_us, population_state, by = "fips")%>%
   mutate(testing_daily_pop = (totalTestResultsIncrease/pop)*100000)%>%
   mutate(pos_rate_daily = (positiveIncrease/totalTestResultsIncrease)*100)%>%
-  select(datecorrect = datecorrect, fips = fips, name = name, state = state.x, testing_daily_pop = testing_daily_pop, pos_rate_daily = pos_rate_daily)
+  mutate(pos_rate = (positive/totalTestResults)*100)%>%
+  select(datecorrect = datecorrect, fips = fips, name = name, state = state.x, testing_daily_pop = testing_daily_pop, pos_rate_daily = pos_rate_daily, pos_rate = pos_rate)
 
 testing_state[is.na(testing_state)] <-0
 
@@ -303,7 +304,7 @@ ui <- navbarPage(
                       box(width = 12, height = 300,
                           title = strong("Percentage of Positive Tests"), solidHeader = TRUE, 
                           plotlyOutput("positivity", height = 240)),
-                      box(h6(em("The number of tests that were positive for COVID-19 as proportion of the total tests conducted (3-day moving average). Where the positivity rate is high, the rate of testing is likely to be exerting a more significant influence on the confirmed case rate, making it a less reliable indicator of the actual number of cases.")), width = 12)),
+                      box(h6(em("The number of tests that were positive for COVID-19 as proportion of the total tests conducted. Where the positivity rate is high, the rate of testing is likely to be exerting a more significant influence on the confirmed case rate, making it a less reliable indicator of the actual number of cases.")), width = 12)),
                column(width = 6,
                       box(width = 12, height = 300,
                           title = strong("Relative Testing Rate"), solidHeader = TRUE,
@@ -365,9 +366,9 @@ ui <- navbarPage(
           br(),
           strong("Apparent Case Fatality Ratio:"), "The ratio of deaths attributed to COVID-19 to total confirmed cases. Current estimates of the case fatality ratio (CFR) for COVID-19 infections range widely but have been estimated by various experts at around 0.9 – 1.2% of infected patients, with an average period from infection-to-death at around 31 days. Because infections tend to spread during this intervening period, during the early phase of an epidemic the apparent CFR would normally be expected to be lower than the actual CFR, converging on the expected CFR over time.", em(strong("Accordingly a ratio higher than the expected CFR is a warning sign that the number of actual infections substantially exceeds the number of confirmed cases,")), "and the degree to which this exceeds the expected value suggests the degree to which actual infections might exceed confirmed cases. It should be noted, of course, that local conditions, such as the presence of relatively more vulnerable populations, limitations on medical care, or similar factors, may increase the CFR for a given population. The trend line indicates the direction of change (i.e. a trend towards the expected value indicates an improvement in the apparent case fatality ratio).", br(),
           br(),
-          strong("Percentage of Positive Tests:"),"The number of tests that were positive for COVID-19 as proportion of the total tests conducted. (Because reliable county level data was not available throughout the United States, this information is provided at the state level only.) The higher this percentage is, the more likely it is that (a) testing is being restricted to patients with a higher probability of infection (such as hospitalized patients); or (b) the population being tested already has a high underlying rate of infection. When this rate is high, there is also a substantial risk that observed changes in the number of confirmed cases are closely linked to the number of tests that are being conducted -- rather than to changes in the number of people that are actually infected. For example, if limitations in testing are restricting tests only to people with more severe symptoms, and the number of tests being conducted each day is not increasing, the rate of new confirmed cases could appear to stabilize in a particular area even if the number of actual cases was continuing to increase. As such,", em(strong("a high positivity rate is a warning sign that the confirmed case rate is not a reliable indicator of the actual number of cases in the area.")), "The default threshold value has been established at 10 percent, the maximum positivity rate recommended by the World Health Organization. Importantly, however, this rate is substantially above (i.e. worse) than the levels being observed in most other developed nations’ testing programs.", br(), 
+          strong("Percentage of Positive Tests:"),"The number of tests that were positive for COVID-19 as proportion of the total tests conducted. (Because reliable county level data was not available throughout the United States, this information is provided at the state level only.) The higher this percentage is, the more likely it is that (a) testing is being restricted to patients with a higher probability of infection (such as hospitalized patients); or (b) the population being tested already has a high underlying rate of infection. When this rate is high, there is also a substantial risk that observed changes in the number of confirmed cases are closely linked to the number of tests that are being conducted -- rather than to changes in the number of people that are actually infected. For example, if limitations in testing are restricting tests only to people with more severe symptoms, and the number of tests being conducted each day is not increasing, the rate of new confirmed cases could appear to stabilize in a particular area even if the number of actual cases was continuing to increase. As such,", em(strong("a high positivity rate is a warning sign that the confirmed case rate is not a reliable indicator of the actual number of cases in the area.")), "The default threshold value has been established at 10 percent, the maximum positivity rate recommended by the", a(href="https://www.who.int/docs/default-source/coronaviruse/transcripts/who-audio-emergencies-coronavirus-press-conference-full-30mar2020.pdf?sfvrsn=6b68bc4a_2", "World Health Organization."), "Importantly, however, this rate is substantially above (i.e. worse) than the levels being observed in most other developed nations’ testing programs.", br(), 
           br(), 
-          strong("Relative Testing Rate:"), "The number of tests that were conducted each day per 100,000 residents. (Because reliable county level data was not available throughout the United States, this information is provided at the state level only.) The U.S. testing effort has substantially lagged in comparison to other developed nations; in addition, there are currently broad differences between states in the availability of testing supplies and testing capacity, and the degree to which available tests are being targeted or restricted to particular patients or populations (many areas initially restricted and/or are continuing to target testing to patients with severe symptoms).", em(strong("Here, the warning sign is a testing rate that is lower than 152 per 100,000,")), "which is the rate recently recommended by researchers at the Harvard Global Health Institute to successfully identify the majority of infected patients. Lower testing rates, particularly in the absence of efforts to back-trace infections and the absence of broad mitigation and suppression controls, mean that local infection rates are likely to be far more widespread than confirmed case counts would suggest. Just as importantly, lower testing rates in one state as compared to others can substantially skew the apparent distribution of infections, since states with relatively high levels of testing effort (e.g. New York) will by definition result in a higher number of confirmed cases. These numbers do not necessarily reflect the number of people tested, since multiple tests may be conducted on the same patient. However, a higher testing rate would be expected to increase the relative accuracy of confirmed case counts and the ability of a state to reliably assess the extent of the epidemic and the rate of spread."
+          strong("Relative Testing Rate:"), "The number of tests that were conducted each day per 100,000 residents. (Because reliable county level data was not available throughout the United States, this information is provided at the state level only.) The U.S. testing effort has substantially lagged in comparison to other developed nations; in addition, there are currently broad differences between states in the availability of testing supplies and testing capacity, and the degree to which available tests are being targeted or restricted to particular patients or populations (many areas initially restricted and/or are continuing to target testing to patients with severe symptoms).", em(strong("Here, the warning sign is a testing rate that is lower than 152 per 100,000,")), "which is the rate recently recommended by researchers at the",  a(href="https://globalepidemics.org/2020/04/18/why-we-need-500000-tests-per-day-to-open-the-economy-and-stay-open/#_ftn3", "Harvard Global Health Institute"), "to successfully identify the majority of infected patients. Lower testing rates, particularly in the absence of efforts to back-trace infections and the absence of broad mitigation and suppression controls, mean that local infection rates are likely to be far more widespread than confirmed case counts would suggest. Just as importantly, lower testing rates in one state as compared to others can substantially skew the apparent distribution of infections, since states with relatively high levels of testing effort (e.g. New York) will by definition result in a higher number of confirmed cases. These numbers do not necessarily reflect the number of people tested, since multiple tests may be conducted on the same patient. However, a higher testing rate would be expected to increase the relative accuracy of confirmed case counts and the ability of a state to reliably assess the extent of the epidemic and the rate of spread."
       )
     )
   ),
@@ -458,7 +459,7 @@ ui <- navbarPage(
                           title = strong("Percentage of Positive Tests (State)"), solidHeader = TRUE, 
                           withSpinner(plotlyOutput("positivitycounty", height = 240),
                                       type = 1, color = "#CDCDCD")),
-                      box(h6(em("The number of tests that were positive for COVID-19 as proportion of the total tests conducted (3-day moving average). Where the positivity rate is high, the rate of testing is likely to be exerting a more significant influence on the confirmed case rate, making it a less reliable indicator of the actual number of cases.")), width = 12)),
+                      box(h6(em("The number of tests that were positive for COVID-19 as proportion of the total tests conducted. Where the positivity rate is high, the rate of testing is likely to be exerting a more significant influence on the confirmed case rate, making it a less reliable indicator of the actual number of cases.")), width = 12)),
                column(width = 6,
                       box(width = 12, height = 300,
                           title = strong("Relative Testing Rate (State)"), solidHeader = TRUE,
@@ -519,9 +520,9 @@ ui <- navbarPage(
           br(),
           strong("Apparent Case Fatality Ratio:"), "The ratio of deaths attributed to COVID-19 to total confirmed cases. Current estimates of the case fatality ratio (CFR) for COVID-19 infections range widely but have been estimated by various experts at around 0.9 – 1.2% of infected patients, with an average period from infection-to-death at around 31 days. Because infections tend to spread during this intervening period, during the early phase of an epidemic the apparent CFR would normally be expected to be lower than the actual CFR, converging on the expected CFR over time.", em(strong("Accordingly a ratio higher than the expected CFR is a warning sign that the number of actual infections substantially exceeds the number of confirmed cases,")), "and the degree to which this exceeds the expected value suggests the degree to which actual infections might exceed confirmed cases. It should be noted, of course, that local conditions, such as the presence of relatively more vulnerable populations, limitations on medical care, or similar factors, may increase the CFR for a given population. The trend line indicates the direction of change (i.e. a trend towards the expected value indicates an improvement in the apparent case fatality ratio).", br(),
           br(),
-          strong("Percentage of Positive Tests:"),"The number of tests that were positive for COVID-19 as proportion of the total tests conducted. (Because reliable county level data was not available throughout the United States, this information is provided at the state level only.) The higher this percentage is, the more likely it is that (a) testing is being restricted to patients with a higher probability of infection (such as hospitalized patients); or (b) the population being tested already has a high underlying rate of infection. When this rate is high, there is also a substantial risk that observed changes in the number of confirmed cases are closely linked to the number of tests that are being conducted -- rather than to changes in the number of people that are actually infected. For example, if limitations in testing are restricting tests only to people with more severe symptoms, and the number of tests being conducted each day is not increasing, the rate of new confirmed cases could appear to stabilize in a particular area even if the number of actual cases was continuing to increase. As such,", em(strong("a high positivity rate is a warning sign that the confirmed case rate is not a reliable indicator of the actual number of cases in the area.")), "The default threshold value has been established at 10 percent, the maximum positivity rate recommended by the World Health Organization. Importantly, however, this rate is substantially above (i.e. worse) than the levels being observed in most other developed nations’ testing programs.", br(), 
+          strong("Percentage of Positive Tests:"),"The number of tests that were positive for COVID-19 as proportion of the total tests conducted. (Because reliable county level data was not available throughout the United States, this information is provided at the state level only.) The higher this percentage is, the more likely it is that (a) testing is being restricted to patients with a higher probability of infection (such as hospitalized patients); or (b) the population being tested already has a high underlying rate of infection. When this rate is high, there is also a substantial risk that observed changes in the number of confirmed cases are closely linked to the number of tests that are being conducted -- rather than to changes in the number of people that are actually infected. For example, if limitations in testing are restricting tests only to people with more severe symptoms, and the number of tests being conducted each day is not increasing, the rate of new confirmed cases could appear to stabilize in a particular area even if the number of actual cases was continuing to increase. As such,", em(strong("a high positivity rate is a warning sign that the confirmed case rate is not a reliable indicator of the actual number of cases in the area.")), "The default threshold value has been established at 10 percent, the maximum positivity rate recommended by the", a(href="https://www.who.int/docs/default-source/coronaviruse/transcripts/who-audio-emergencies-coronavirus-press-conference-full-30mar2020.pdf?sfvrsn=6b68bc4a_2", "World Health Organization."), "Importantly, however, this rate is substantially above (i.e. worse) than the levels being observed in most other developed nations’ testing programs.", br(), 
           br(), 
-          strong("Relative Testing Rate:"), "The number of tests that were conducted each day per 100,000 residents. (Because reliable county level data was not available throughout the United States, this information is provided at the state level only.) The U.S. testing effort has substantially lagged in comparison to other developed nations; in addition, there are currently broad differences between states in the availability of testing supplies and testing capacity, and the degree to which available tests are being targeted or restricted to particular patients or populations (many areas initially restricted and/or are continuing to target testing to patients with severe symptoms).", em(strong("Here, the warning sign is a testing rate that is lower than 152 per 100,000,")), "which is the rate recently recommended by researchers at the Harvard Global Health Institute to successfully identify the majority of infected patients. Lower testing rates, particularly in the absence of efforts to back-trace infections and the absence of broad mitigation and suppression controls, mean that local infection rates are likely to be far more widespread than confirmed case counts would suggest. Just as importantly, lower testing rates in one state as compared to others can substantially skew the apparent distribution of infections, since states with relatively high levels of testing effort (e.g. New York) will by definition result in a higher number of confirmed cases. These numbers do not necessarily reflect the number of people tested, since multiple tests may be conducted on the same patient. However, a higher testing rate would be expected to increase the relative accuracy of confirmed case counts and the ability of a state to reliably assess the extent of the epidemic and the rate of spread."
+          strong("Relative Testing Rate:"), "The number of tests that were conducted each day per 100,000 residents. (Because reliable county level data was not available throughout the United States, this information is provided at the state level only.) The U.S. testing effort has substantially lagged in comparison to other developed nations; in addition, there are currently broad differences between states in the availability of testing supplies and testing capacity, and the degree to which available tests are being targeted or restricted to particular patients or populations (many areas initially restricted and/or are continuing to target testing to patients with severe symptoms).", em(strong("Here, the warning sign is a testing rate that is lower than 152 per 100,000,")), "which is the rate recently recommended by researchers at the",  a(href="https://globalepidemics.org/2020/04/18/why-we-need-500000-tests-per-day-to-open-the-economy-and-stay-open/#_ftn3", "Harvard Global Health Institute"), "to successfully identify the majority of infected patients. Lower testing rates, particularly in the absence of efforts to back-trace infections and the absence of broad mitigation and suppression controls, mean that local infection rates are likely to be far more widespread than confirmed case counts would suggest. Just as importantly, lower testing rates in one state as compared to others can substantially skew the apparent distribution of infections, since states with relatively high levels of testing effort (e.g. New York) will by definition result in a higher number of confirmed cases. These numbers do not necessarily reflect the number of people tested, since multiple tests may be conducted on the same patient. However, a higher testing rate would be expected to increase the relative accuracy of confirmed case counts and the ability of a state to reliably assess the extent of the epidemic and the rate of spread."
       )
     )
   ),
@@ -610,7 +611,7 @@ ui <- navbarPage(
                           title = strong("Percentage of Positive Tests (State)"), solidHeader = TRUE, 
                           withSpinner(plotlyOutput("positivityus", height = 240),
                                       type = 1, color = "#CDCDCD")),
-                      box(h6(em("The number of tests that were positive for COVID-19 as proportion of the total tests conducted (3-day moving average). Where the positivity rate is high, the rate of testing is likely to be exerting a more significant influence on the confirmed case rate, making it a less reliable indicator of the actual number of cases.")), width = 12)),
+                      box(h6(em("The number of tests that were positive for COVID-19 as proportion of the total tests conducted. Where the positivity rate is high, the rate of testing is likely to be exerting a more significant influence on the confirmed case rate, making it a less reliable indicator of the actual number of cases.")), width = 12)),
                column(width = 6,
                       box(width = 12, height = 300,
                           title = strong("Relative Testing Rate (State)"), solidHeader = TRUE,
@@ -671,9 +672,9 @@ ui <- navbarPage(
           br(),
           strong("Apparent Case Fatality Ratio:"), "The ratio of deaths attributed to COVID-19 to total confirmed cases. Current estimates of the case fatality ratio (CFR) for COVID-19 infections range widely but have been estimated by various experts at around 0.9 – 1.2% of infected patients, with an average period from infection-to-death at around 31 days. Because infections tend to spread during this intervening period, during the early phase of an epidemic the apparent CFR would normally be expected to be lower than the actual CFR, converging on the expected CFR over time.", em(strong("Accordingly a ratio higher than the expected CFR is a warning sign that the number of actual infections substantially exceeds the number of confirmed cases,")), "and the degree to which this exceeds the expected value suggests the degree to which actual infections might exceed confirmed cases. It should be noted, of course, that local conditions, such as the presence of relatively more vulnerable populations, limitations on medical care, or similar factors, may increase the CFR for a given population. The trend line indicates the direction of change (i.e. a trend towards the expected value indicates an improvement in the apparent case fatality ratio).", br(),
           br(),
-          strong("Percentage of Positive Tests:"),"The number of tests that were positive for COVID-19 as proportion of the total tests conducted. (Because reliable county level data was not available throughout the United States, this information is provided at the state level only.) The higher this percentage is, the more likely it is that (a) testing is being restricted to patients with a higher probability of infection (such as hospitalized patients); or (b) the population being tested already has a high underlying rate of infection. When this rate is high, there is also a substantial risk that observed changes in the number of confirmed cases are closely linked to the number of tests that are being conducted -- rather than to changes in the number of people that are actually infected. For example, if limitations in testing are restricting tests only to people with more severe symptoms, and the number of tests being conducted each day is not increasing, the rate of new confirmed cases could appear to stabilize in a particular area even if the number of actual cases was continuing to increase. As such,", em(strong("a high positivity rate is a warning sign that the confirmed case rate is not a reliable indicator of the actual number of cases in the area.")), "The default threshold value has been established at 10 percent, the maximum positivity rate recommended by the World Health Organization. Importantly, however, this rate is substantially above (i.e. worse) than the levels being observed in most other developed nations’ testing programs.", br(), 
+          strong("Percentage of Positive Tests:"),"The number of tests that were positive for COVID-19 as proportion of the total tests conducted. (Because reliable county level data was not available throughout the United States, this information is provided at the state level only.) The higher this percentage is, the more likely it is that (a) testing is being restricted to patients with a higher probability of infection (such as hospitalized patients); or (b) the population being tested already has a high underlying rate of infection. When this rate is high, there is also a substantial risk that observed changes in the number of confirmed cases are closely linked to the number of tests that are being conducted -- rather than to changes in the number of people that are actually infected. For example, if limitations in testing are restricting tests only to people with more severe symptoms, and the number of tests being conducted each day is not increasing, the rate of new confirmed cases could appear to stabilize in a particular area even if the number of actual cases was continuing to increase. As such,", em(strong("a high positivity rate is a warning sign that the confirmed case rate is not a reliable indicator of the actual number of cases in the area.")), "The default threshold value has been established at 10 percent, the maximum positivity rate recommended by the", a(href="https://www.who.int/docs/default-source/coronaviruse/transcripts/who-audio-emergencies-coronavirus-press-conference-full-30mar2020.pdf?sfvrsn=6b68bc4a_2", "World Health Organization."), "Importantly, however, this rate is substantially above (i.e. worse) than the levels being observed in most other developed nations’ testing programs.", br(), 
           br(), 
-          strong("Relative Testing Rate:"), "The number of tests that were conducted each day per 100,000 residents. (Because reliable county level data was not available throughout the United States, this information is provided at the state level only.) The U.S. testing effort has substantially lagged in comparison to other developed nations; in addition, there are currently broad differences between states in the availability of testing supplies and testing capacity, and the degree to which available tests are being targeted or restricted to particular patients or populations (many areas initially restricted and/or are continuing to target testing to patients with severe symptoms).", em(strong("Here, the warning sign is a testing rate that is lower than 152 per 100,000,")), "which is the rate recently recommended by researchers at the Harvard Global Health Institute to successfully identify the majority of infected patients. Lower testing rates, particularly in the absence of efforts to back-trace infections and the absence of broad mitigation and suppression controls, mean that local infection rates are likely to be far more widespread than confirmed case counts would suggest. Just as importantly, lower testing rates in one state as compared to others can substantially skew the apparent distribution of infections, since states with relatively high levels of testing effort (e.g. New York) will by definition result in a higher number of confirmed cases. These numbers do not necessarily reflect the number of people tested, since multiple tests may be conducted on the same patient. However, a higher testing rate would be expected to increase the relative accuracy of confirmed case counts and the ability of a state to reliably assess the extent of the epidemic and the rate of spread."
+          strong("Relative Testing Rate:"), "The number of tests that were conducted each day per 100,000 residents. (Because reliable county level data was not available throughout the United States, this information is provided at the state level only.) The U.S. testing effort has substantially lagged in comparison to other developed nations; in addition, there are currently broad differences between states in the availability of testing supplies and testing capacity, and the degree to which available tests are being targeted or restricted to particular patients or populations (many areas initially restricted and/or are continuing to target testing to patients with severe symptoms).", em(strong("Here, the warning sign is a testing rate that is lower than 152 per 100,000,")), "which is the rate recently recommended by researchers at the",  a(href="https://globalepidemics.org/2020/04/18/why-we-need-500000-tests-per-day-to-open-the-economy-and-stay-open/#_ftn3", "Harvard Global Health Institute"), "to successfully identify the majority of infected patients. Lower testing rates, particularly in the absence of efforts to back-trace infections and the absence of broad mitigation and suppression controls, mean that local infection rates are likely to be far more widespread than confirmed case counts would suggest. Just as importantly, lower testing rates in one state as compared to others can substantially skew the apparent distribution of infections, since states with relatively high levels of testing effort (e.g. New York) will by definition result in a higher number of confirmed cases. These numbers do not necessarily reflect the number of people tested, since multiple tests may be conducted on the same patient. However, a higher testing rate would be expected to increase the relative accuracy of confirmed case counts and the ability of a state to reliably assess the extent of the epidemic and the rate of spread."
       )
     )
   ),
@@ -1144,9 +1145,9 @@ server <- function(input, output,session) {
   output$positivity <- renderPlotly({
     
     testing_selected_mortality <- testing_selected()%>%
-      filter(pos_rate_daily_ma != 0)
+      filter(pos_rate != 0)
     
-    pos_smooth = supsmu(testing_selected()$datecorrect, testing_selected()$pos_rate_daily_ma)
+    pos_smooth = supsmu(testing_selected()$datecorrect, testing_selected()$pos_rate)
     
     plot_ly(data = testing_selected_mortality,
             type = "scatter",
@@ -1174,8 +1175,8 @@ server <- function(input, output,session) {
                 line = list(color = '#bfbfbf', dash = 'dot'))%>%
       add_markers(data = testing_selected_mortality,
         x=~datecorrect, 
-        y=~pos_rate_daily_ma,
-        name = "% Positive Test (moving average)",
+        y=~pos_rate,
+        name = "% Positive Test",
         text = ~name,
         hovertemplate = paste("%{x}: %{y:,.0f}",
                               "<extra>%{text}</extra>"),
@@ -1205,7 +1206,7 @@ server <- function(input, output,session) {
           range = c(testing_date, current_date),
           zeroline = FALSE),
         yaxis = list(
-          title = 'Positivity Rate <br> (Daily %)',
+          title = 'Positivity Rate <br> (% Tests)',
           gridcolor = cvlinecolor,
           showgrid = FALSE,
           showline = TRUE,
@@ -1227,7 +1228,7 @@ server <- function(input, output,session) {
   output$testperday <- renderPlotly({
     
     testing_selected_rate<- testing_selected()%>%
-      filter(pos_rate_daily_ma != 0)
+      filter(pos_rate != 0)
     
     testrate_smooth = supsmu(testing_selected()$datecorrect, testing_selected()$testing_daily_pop)
     
@@ -1312,7 +1313,7 @@ server <- function(input, output,session) {
     testing_rank <- testing_state%>%
       filter(datecorrect==input$plot_date) %>%
       mutate(exceedtestingdaily = ifelse(testing_daily_pop<(testingthreshold),1,0))%>%
-      mutate(exceedposrate = ifelse(pos_rate_daily_ma>(positivethreshold),1,0))%>% #comparing 3 day moving average
+      mutate(exceedposrate = ifelse(pos_rate>(positivethreshold),1,0))%>% #comparing 3 day moving average
       replace_na(list(exceedposrate = 0))%>%
       select(name, state, exceedtestingdaily, exceedposrate)
     
@@ -1779,9 +1780,9 @@ server <- function(input, output,session) {
   output$positivitycounty <- renderPlotly({
     
     testing_selected_county_positive <- testing_selected_county()%>%
-      filter(pos_rate_daily_ma != 0)
+      filter(pos_rate != 0)
     
-    pos_smooth = supsmu(testing_selected_county()$datecorrect, testing_selected_county()$pos_rate_daily_ma)
+    pos_smooth = supsmu(testing_selected_county()$datecorrect, testing_selected_county()$pos_rate)
     
     plot_ly(data = testing_selected_county_positive,
             type = "scatter",
@@ -1809,8 +1810,8 @@ server <- function(input, output,session) {
                 line = list(color = '#bfbfbf', dash = 'dot'))%>%
       add_markers(data = testing_selected_county_positive,
                   x=~datecorrect, 
-                  y=~pos_rate_daily_ma,
-                  name = "% Positive Test (moving average)",
+                  y=~pos_rate,
+                  name = "% Positive Test",
                   text = ~name,
                   hovertemplate = paste("%{x}: %{y:,.0f}",
                                         "<extra>%{text}</extra>"),
@@ -1841,7 +1842,7 @@ server <- function(input, output,session) {
           range = c(testing_date, current_date),
           zeroline = FALSE),
         yaxis = list(
-          title = 'Positivity Rate <br> (Daily %)',
+          title = 'Positivity Rate <br> (% Tests)',
           gridcolor = cvlinecolor,
           showgrid = FALSE,
           showline = TRUE,
@@ -1947,7 +1948,7 @@ server <- function(input, output,session) {
     testing_rank_county <- testing_state%>%
       filter(datecorrect==input$plot_date_county) %>%
       mutate(exceedtestingdaily = ifelse(testing_daily_pop<(testingthreshold),1,0))%>%
-      mutate(exceedposrate = ifelse(pos_rate_daily_ma>(positivethreshold),1,0))%>% #comparing 3 day moving average
+      mutate(exceedposrate = ifelse(pos_rate>(positivethreshold),1,0))%>% #comparing 3 day moving average
       replace_na(list(exceedposrate = 0))%>%
       select(name, state, exceedtestingdaily, exceedposrate)
     
@@ -2455,9 +2456,9 @@ server <- function(input, output,session) {
   output$positivityus <- renderPlotly({
     
     testing_selected_us_positive <- testing_selected_us%>%
-      filter(pos_rate_daily_ma != 0)
+      filter(pos_rate != 0)
     
-    pos_smooth_us = supsmu(testing_selected_us$datecorrect, testing_selected_us$pos_rate_daily_ma)
+    pos_smooth_us = supsmu(testing_selected_us$datecorrect, testing_selected_us$pos_rate)
     
     plot_ly(data = testing_selected_us_positive,
             type = "scatter",
@@ -2482,8 +2483,8 @@ server <- function(input, output,session) {
                 line = list(color = '#bfbfbf', dash = 'dot'))%>%
       add_markers(
         x=~datecorrect, 
-        y=~pos_rate_daily_ma,
-        name = "% Positive Test (moving average)",
+        y=~pos_rate,
+        name = "% Positive Test",
         text = ~name,
         hovertemplate = paste("%{x}: %{y:,.0f}",
                               "<extra>%{text}</extra>"),
@@ -2514,7 +2515,7 @@ server <- function(input, output,session) {
           range = c(testing_date, current_date),
           zeroline = FALSE),
         yaxis = list(
-          title = 'Positivity Rate <br> (Daily %)',
+          title = 'Positivity Rate <br> (% Tests)',
           gridcolor = cvlinecolor,
           showgrid = FALSE,
           showline = TRUE,
@@ -2607,7 +2608,7 @@ server <- function(input, output,session) {
     testing_rank_county <- testing_state%>%
       filter(datecorrect==input$plot_date_county) %>%
       mutate(exceedtestingdaily = ifelse(testing_daily_pop<(testingthreshold),1,0))%>%
-      mutate(exceedposrate = ifelse(pos_rate_daily_ma>(positivethreshold),1,0))%>% #comparing 3 day moving average
+      mutate(exceedposrate = ifelse(pos_rate>(positivethreshold),1,0))%>% #comparing 3 day moving average
       replace_na(list(exceedposrate = 0))%>%
       select(name, state, exceedtestingdaily, exceedposrate)
     
