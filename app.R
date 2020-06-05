@@ -103,7 +103,7 @@ covid_state[is.na(covid_state)] <-0
 
 #testing data
 covid_testing_select <- covid_testing%>%
-  mutate(datecorrect = ymd(as.Date(dateChecked)))%>%
+  mutate(datecorrect = ymd(date))%>%
   mutate(fips = as.numeric(fips))%>%
   select(datecorrect, state, fips, totalTestResults, positive, totalTestResultsIncrease, positiveIncrease)
 covid_testing_select[is.na(covid_testing_select)] <-0
